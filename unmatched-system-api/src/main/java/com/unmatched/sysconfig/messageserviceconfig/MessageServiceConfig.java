@@ -1,16 +1,20 @@
 package com.unmatched.sysconfig.messageserviceconfig;
 
+import com.unmatched.service.RmiService;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.activemq.command.ActiveMQTopic;
 import org.apache.activemq.spring.ActiveMQConnectionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.remoting.JmsInvokerServiceExporter;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
@@ -19,6 +23,8 @@ import org.springframework.jms.support.converter.SimpleMessageConverter;
 import javax.jms.ConnectionFactory;
 import javax.jms.Queue;
 import javax.jms.Topic;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
 * Description: 对Java异步消息的支持
@@ -30,14 +36,21 @@ import javax.jms.Topic;
 //@PropertySource("classpath:/properties/system.properties")
 public class MessageServiceConfig {
 
+    @Autowired
+    private RmiService rmiService;
+
     //设置activeMQ连接工厂(qa 环境下会生成)
     @Bean
     @Profile("qa")
     public ConnectionFactory connectionFactory(@Value("${activeMq_Url}") String url){
         ActiveMQConnectionFactory activeMQConnectionFactory=new ActiveMQConnectionFactory();
         activeMQConnectionFactory.setBrokerURL(url);
+        List<String> needTrustPackage=new ArrayList<>();
+        needTrustPackage.add("com.unmatched.service");
+        activeMQConnectionFactory.setTrustedPackages(needTrustPackage);
         return activeMQConnectionFactory;
     }
+
 
     //申明activeMq消息目的地(队列或主题)
     //队列
@@ -82,5 +95,14 @@ public class MessageServiceConfig {
         //重连间隔时间
         factory.setRecoveryInterval(1000L);
         return factory;
+    }
+
+    @Bean(name = "jmsISE")
+    @JmsListener(containerFactory = "jmsQueueListenerCF",destination = "messageQueue")
+    public JmsInvokerServiceExporter exporter(){
+        JmsInvokerServiceExporter exporter=new JmsInvokerServiceExporter();
+        exporter.setService(rmiService);
+        exporter.setServiceInterface(RmiService.class);
+        return exporter;
     }
 }

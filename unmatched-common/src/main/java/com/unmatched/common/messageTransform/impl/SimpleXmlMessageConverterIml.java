@@ -1,6 +1,8 @@
 package com.unmatched.common.messageTransform.impl;
 
 import com.unmatched.common.messageTransform.entity.MessageNodeInfo;
+import com.unmatched.common.messageTransform.entity.XMLMessageNodeInfo;
+import com.unmatched.common.messageTransform.exception.MessageConverterException;
 import com.unmatched.common.messageTransform.inter.MessageConverter;
 import org.springframework.stereotype.Component;
 
@@ -19,17 +21,23 @@ public class SimpleXmlMessageConverterIml implements MessageConverter {
 
     @Override
     public String convertMessage(MessageNodeInfo messageNodeInfo) {
-        String template = messageNodeInfo.getName() + "\n";
-        List<MessageNodeInfo> childs = messageNodeInfo.getChilds();
-        for (MessageNodeInfo info : childs) {
-            template = convertMessage(info, template, 0);
+        if (messageNodeInfo instanceof XMLMessageNodeInfo) {
+            XMLMessageNodeInfo xMLMessageNodeInfo = (XMLMessageNodeInfo) messageNodeInfo;
+            String template = xMLMessageNodeInfo.getName() + "\n";
+            List<XMLMessageNodeInfo> childs = xMLMessageNodeInfo.getChilds();
+            for (XMLMessageNodeInfo info : childs) {
+                template = convertMessage(info, template, 0);
+            }
+            return template;
+        } else {
+            throw new MessageConverterException("所传入的节点信息类不是XML节点信息类" +
+                    messageNodeInfo.getClass().getSimpleName());
         }
-        return template;
     }
 
-    private String convertMessage(MessageNodeInfo messageNodeInfo, String template, int index) {
+    private String convertMessage(XMLMessageNodeInfo XMLMessageNodeInfo, String template, int index) {
 
-        if (messageNodeInfo == null)
+        if (XMLMessageNodeInfo == null)
             return template;
 
         String temp = "";
@@ -39,22 +47,22 @@ public class SimpleXmlMessageConverterIml implements MessageConverter {
             temp += "\t";
         }
 
-        template += temp + "<" + messageNodeInfo.getName() + ">" + "\n";
-        if (messageNodeInfo.getValue() != null) {
+        template += temp + "<" + XMLMessageNodeInfo.getName() + ">" + "\n";
+        if (XMLMessageNodeInfo.getValue() != null) {
             String temp2 = "\t" + temp;
-            template += temp2 + messageNodeInfo.getValue() + "\n";
+            template += temp2 + XMLMessageNodeInfo.getValue() + "\n";
         }
-        if (messageNodeInfo.getChilds() == null) {
-            template += temp + "</" + messageNodeInfo.getName() + ">" + "\n";
+        if (XMLMessageNodeInfo.getChilds() == null) {
+            template += temp + "</" + XMLMessageNodeInfo.getName() + ">" + "\n";
             return template;
         }
         int k = index;
         k++;
-        List<MessageNodeInfo> childs = messageNodeInfo.getChilds();
+        List<XMLMessageNodeInfo> childs = XMLMessageNodeInfo.getChilds();
         for (int i = 0; i < childs.size(); i++) {
             template = convertMessage(childs.get(i), template, k);
         }
-        template += temp + "</" + messageNodeInfo.getName() + ">" + "\n";
+        template += temp + "</" + XMLMessageNodeInfo.getName() + ">" + "\n";
         return template;
     }
 }

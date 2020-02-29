@@ -202,6 +202,10 @@ activemq 控制面板里的字段含义：<br>
 
 注意：当以 _订阅模式_ 发布时，如果消费者后于生产者启动时，肯定是收不到生产者发布的消息的，
 生产者发布的消息发布时，只在当时对在线的消费者推送一次，仅此而已。 <br>
+###JMS如何异步接收消息<br>
+首先我们要使用注解@EnableJms开启对JMS注解的支持，其次我们要配置JMS队列监听器容器工厂（
+参考MessageServiceConfig.class中的配置）。最后我们只需要将对监听到的消息进行处理的
+方法上使用@JmsListener注解即可（参考JmsServiceImpl中的getInfoAsync方法）<br>
 
 
 ##扩展知识<br>
@@ -219,3 +223,44 @@ Accept属于请求头，Content-Type属于实体头。HTTP报头分为通用报�
 Accept代表发送端希望接受的数据类型，如：Accept: text/xml 代表发送端希望接受xml类型的数据。
 Content-Type代表发送端发送的实体数据的数据类型，如：Content-Type: text/html 代表发送端
 发送的数据格式是html。<br>
+
+##XML可视化代码详解（不止XML，也可以支持json）<br>
+###相关的类<br>
+unmatched-common模块下的com.unmatched.common.messageTransform包下全部<br>
+
+测试相关的类：unmatched-system-api模块下的com.unmatched.converter全部<br>
+
+测试类：unmatched-system-api模块下的test文件夹com.unmatched包下的 TestBuildXml.class<br>
+
+###看清xml报文的本质<br>
+一份xml报文往往有许多节点构成。每个节点必定有节点名，可能还有节点值，节点属性及节点属性值。这个
+节点可能是孤单的，也有可能这个节点下有许多的子节点。这个节点以及其下的子节点一起就构成了一个xml报文。
+按照面向对象编程，我把它抽象成了XMLMessageNodeInfo类。<br>
+
+###CoreAcctRecordConverterImpl类代码解析<br>
+在接口组以往拼写报文的类中，代码往往与报文节点名耦合，这就导致如果节点需要变化，则代码也需要
+改变。像这种两者直接关联引起的耦合，往往通过引入第三者的方式来进行解耦。所以在CoreAcctRecordConverterImpl类代码解析
+中我们通过节点的Id来获取节点，为它赋值。<br>
+这里我取消了XMLUtils，我们来思考一下为什么以前我们需要使用XMLUtils这个工具类。当我们拿到一份需求
+文档时，我们很容易知道哪个节点赋什么值，哪个节点需要循环（由代码控制）。于是我们将这些值装到一个
+List或者Map中，然后再丢到XMLUtils中，让他来替我们生成XML报文。因为我们的报文模板是一个字符型的
+我们通过代码去循环去赋值显然不太可能。但现在我们把报文模板抽象成了一个类，因此我们可以对他做任何
+的事情，在代码中直接给节点赋值，直接取出要循环的节点，然后循环生成它。正如我在CoreAcctRecordConverterImpl
+中所做的。<br>
+
+###约定<br>
+约定我们存入数据库的根节点一定是类似于 “<?xml version="1.0" encoding="UTF-8"?>” 这种的XML申明<br>
+
+###使用这个XML可视化工具的优点<br>
+1、拼报文时不需要XMLUtils （XMLUtils如何拼报文往往与项目点的要求耦合，不能个个项目点通用）<br>
+2、如果节点名不对不需要改代码，直接改数据库<br>
+3、如果节点不需要了直接删除即可（前提代码里的做好判断）<br>
+4、节点之间可以互换名字<br>
+5、可以新增节点（前提是节点的值是常量，可以直接在数据库里赋值，如果需要从一个类里取值，那肯定
+要改动代码了）<br>
+
+###不足
+1、未经足够的测试（我XML接触的比较少，基本都是json）<br>
+2、写Converter类可能稍微复杂了点，且编写方式与以前不太相同了<br>
+2、很慢，后续需要优化（主要慢在循环递归那块）<br>
+

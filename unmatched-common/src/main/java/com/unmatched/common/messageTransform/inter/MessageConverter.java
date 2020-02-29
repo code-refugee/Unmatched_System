@@ -1,8 +1,7 @@
 package com.unmatched.common.messageTransform.inter;
 
 import com.unmatched.common.messageTransform.entity.MessageNodeInfo;
-
-import java.util.List;
+import com.unmatched.common.messageTransform.entity.XMLMessageNodeInfo;
 
 /**
 * Description: 任何报文转换器都要实现该接口

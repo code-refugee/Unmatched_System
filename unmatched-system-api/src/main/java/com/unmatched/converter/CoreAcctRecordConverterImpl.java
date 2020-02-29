@@ -1,7 +1,7 @@
 package com.unmatched.converter;
 
 import com.unmatched.common.messageTransform.MessageOperation;
-import com.unmatched.common.messageTransform.entity.MessageNodeInfo;
+import com.unmatched.common.messageTransform.entity.XMLMessageNodeInfo;
 import com.unmatched.common.messageTransform.enums.OperationType;
 import com.unmatched.common.messageTransform.inter.MessageConverter;
 import com.unmatched.pojo.Step;
@@ -24,49 +24,51 @@ public class CoreAcctRecordConverterImpl implements CoreAcctRecordConverter {
 
     @Override
     public String encode(User user, List<Step> steps) {
-        MessageNodeInfo rootNodeInfo = messageOperation.getNodeInfo(OperationType.CORE_ACCT_RECORD);
+        XMLMessageNodeInfo rootNodeInfo = messageOperation.getAllXMLNodeInfo(OperationType.CORE_ACCT_RECORD);
         //username
-        MessageNodeInfo nodeInfo02 = messageOperation.getNodeInfoById("02");
+        XMLMessageNodeInfo nodeInfo02 = messageOperation.getXmlNodeInfoById("02");
         //password
-        MessageNodeInfo nodeInfo03 = messageOperation.getNodeInfoById("03");
+        XMLMessageNodeInfo nodeInfo03 = messageOperation.getXmlNodeInfoById("03");
         if(nodeInfo02!=null)
             nodeInfo02.setValue(user.getUsername());
         if(nodeInfo03!=null)
             nodeInfo03.setValue(user.getPassword());
         int count=1;
-        MessageNodeInfo temp1=new MessageNodeInfo();
+        XMLMessageNodeInfo temp1=new XMLMessageNodeInfo();
         //浅拷贝
-        BeanUtils.copyProperties(messageOperation.getNodeInfoById("05"),temp1);
-        List<MessageNodeInfo> tempList=new ArrayList<>();
+        BeanUtils.copyProperties(messageOperation.getXmlNodeInfoById("05"),temp1);
+        List<XMLMessageNodeInfo> tempList=new ArrayList<>();
+        //按照以往的作法，在这里我们是将值装入一个List或者Map
+        //这里我直接复制节点，然后将复制的节点复制
         for (int i = 0; i < steps.size(); i++) {
-            MessageNodeInfo temp2=new MessageNodeInfo();
+            XMLMessageNodeInfo temp2=new XMLMessageNodeInfo();
             //浅拷贝
-            BeanUtils.copyProperties(temp1,messageOperation.getNodeInfoById("05"));
+            BeanUtils.copyProperties(temp1,messageOperation.getXmlNodeInfoById("05"));
             if(i!=steps.size()-1){
                 //stepName
-                MessageNodeInfo nodeInfo06=messageOperation.getNodeInfoById("06");
+                XMLMessageNodeInfo nodeInfo06=messageOperation.getXmlNodeInfoById("06");
                 //stepIndex
-                MessageNodeInfo nodeInfo07=messageOperation.getNodeInfoById("07");
+                XMLMessageNodeInfo nodeInfo07=messageOperation.getXmlNodeInfoById("07");
                 if (nodeInfo06!=null)
                     nodeInfo06.setValue(steps.get(i).getStepName());
                 if(nodeInfo07!=null)
                     nodeInfo07.setValue(steps.get(i).getStepIndex()+"");
                 //深拷贝
-                temp2=messageOperation.copyProperties(messageOperation.getNodeInfoById("05"));
+                temp2=messageOperation.copyProperties(messageOperation.getXmlNodeInfoById("05"));
                 tempList.add(temp2);
             }else {
                 //stepName
-                MessageNodeInfo nodeInfo06=messageOperation.getNodeInfoById("06");
+                XMLMessageNodeInfo nodeInfo06=messageOperation.getXmlNodeInfoById("06");
                 //stepIndex
-                MessageNodeInfo nodeInfo07=messageOperation.getNodeInfoById("07");
+                XMLMessageNodeInfo nodeInfo07=messageOperation.getXmlNodeInfoById("07");
                 if (nodeInfo06!=null)
                     nodeInfo06.setValue(steps.get(i).getStepName());
                 if(nodeInfo07!=null)
                     nodeInfo07.setValue(steps.get(i).getStepIndex()+"");
             }
         }
-        MessageNodeInfo needAddChildsNode=messageOperation.getNodeInfoById(messageOperation.getNodeInfoById("05").getParentId());
-        List<MessageNodeInfo> childs = needAddChildsNode.getChilds();
+        XMLMessageNodeInfo needAddChildsNode=messageOperation.getXmlNodeInfoById(messageOperation.getXmlNodeInfoById("05").getParentId());
+        List<XMLMessageNodeInfo> childs = needAddChildsNode.getChilds();
         childs.addAll(tempList);
         return messageOperation.getMessage(rootNodeInfo,messageConverter);
     }
