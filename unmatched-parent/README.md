@@ -202,6 +202,13 @@ activemq 控制面板里的字段含义：<br>
 
 注意：当以 _订阅模式_ 发布时，如果消费者后于生产者启动时，肯定是收不到生产者发布的消息的，
 生产者发布的消息发布时，只在当时对在线的消费者推送一次，仅此而已。 <br>
+由于JmsTemplate发送MQ消息时每次都要创建Connection和Session。因此引入Spring提供的
+CachingConnectionFactory，起到类似于数据库连接池的效果<br>
+注册JmsTemplate时，pubSubDomain这个属性的值要特别注意。默认值是false，
+也就是说默认只是支持queue模式，不支持topic模式。但是，如果将它改为true，
+则不支持queue模式。因此如果项目需要同时支持queue和topic模式，
+那么需要注册2个JmsTemplate，同时监听容器（<jms:listener-container>）也需要注册2个<br>
+
 ###JMS如何异步接收消息<br>
 首先我们要使用注解@EnableJms开启对JMS注解的支持，其次我们要配置JMS队列监听器容器工厂（
 参考MessageServiceConfig.class中的配置）。最后我们只需要将对监听到的消息进行处理的
@@ -210,7 +217,8 @@ activemq 控制面板里的字段含义：<br>
 
 ##扩展知识<br>
 一、lombok工具类可以用简单的注解形式来简化代码，提高开发效率。<br>
-例：在实体类上使用@Data注解可以省去代码中大量的get()、 set()、 toString()等方法；<br>
+例：在实体类上使用@Data、@ToString()注解可以省去代码中大量的get()、 set()、 toString()等方法；
+如果不想每次都写private  final Logger logger = LoggerFactory.getLogger(当前类名.class)可以用注解@Slf4j;<br>
 
 二、@Repository和@Mapper注解的区别<br>
 @Repository需要在Spring中配置扫描地址，然后生成Dao层的Bean才能被注入到Service层中。<br>
@@ -223,6 +231,8 @@ Accept属于请求头，Content-Type属于实体头。HTTP报头分为通用报�
 Accept代表发送端希望接受的数据类型，如：Accept: text/xml 代表发送端希望接受xml类型的数据。
 Content-Type代表发送端发送的实体数据的数据类型，如：Content-Type: text/html 代表发送端
 发送的数据格式是html。<br>
+
+四、
 
 ##XML可视化代码详解（不止XML，也可以支持json）<br>
 ###相关的类<br>
@@ -249,7 +259,7 @@ List或者Map中，然后再丢到XMLUtils中，让他来替我们生成XML报�
 中所做的。<br>
 
 ###约定<br>
-约定我们存入数据库的根节点一定是类似于 “<?xml version="1.0" encoding="UTF-8"?>” 这种的XML申明<br>
+约定我们存入数据库的根节点一定是类似于 /<?xml version="1.0" encoding="UTF-8"?/> 这种的XML申明<br>
 
 ###使用这个XML可视化工具的优点<br>
 1、拼报文时不需要XMLUtils （XMLUtils如何拼报文往往与项目点的要求耦合，不能个个项目点通用）<br>
