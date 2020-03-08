@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jms="http://www.springframework.org/schema/jms"
+       xsi:schemaLocation="http://www.springframework.org/schema/jms
+        http://www.springframework.org/schema/jms/spring-jms.xsd
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--引入配置类-->
+    <bean class="com.unmatched.sysconfig.messageserviceconfig.MessageServiceConfig"/>
+
+    <!--不能放在beans标签下面 不然会报错-->
+    <!--监听远程方法调用-->
+    <jms:listener-container connection-factory="connectionFactory">
+        <jms:listener destination="messageQueueForService" ref="jmsISE"/>
+    </jms:listener-container>
+
+</beans>

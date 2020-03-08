@@ -14,6 +14,7 @@ import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.core.JmsOperations;
 import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.remoting.JmsInvokerProxyFactoryBean;
 import org.springframework.jms.remoting.JmsInvokerServiceExporter;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.converter.MessageConverter;
@@ -45,19 +46,41 @@ public class MessageServiceConfig {
     public ConnectionFactory connectionFactory(@Value("${activeMq_Url}") String url){
         ActiveMQConnectionFactory activeMQConnectionFactory=new ActiveMQConnectionFactory();
         activeMQConnectionFactory.setBrokerURL(url);
-        List<String> needTrustPackage=new ArrayList<>();
-        needTrustPackage.add("com.unmatched.service");
-        activeMQConnectionFactory.setTrustedPackages(needTrustPackage);
+//        List<String> needTrustPackage=new ArrayList<>();
+        //除了信任这个包，还要信任JmsInvokerServiceExporter不然远程方法调用会报错
+//        needTrustPackage.add("com.unmatched.service");
+//        activeMQConnectionFactory.setTrustedPackages(needTrustPackage);
+        activeMQConnectionFactory.setTrustAllPackages(true);
         return activeMQConnectionFactory;
+    }
+
+    //设置rabbitMq连接工厂（qa环境下生效）
+    @Bean
+    @Profile("qa")
+    public com.rabbitmq.client.ConnectionFactory rabbitConnectionFactory(@Value("${rabbitMq_host}") String host,
+                                                                         @Value("${rabbitMq_port}") int port){
+        com.rabbitmq.client.ConnectionFactory rabbitConnectionFactory=new com.rabbitmq.client.ConnectionFactory();
+        rabbitConnectionFactory.setHost(host);
+        rabbitConnectionFactory.setPort(port);
+        rabbitConnectionFactory.setUsername("guest");
+        rabbitConnectionFactory.setPassword("guest");
+        return rabbitConnectionFactory;
     }
 
 
     //申明activeMq消息目的地(队列或主题)
-    //队列
+    //这个队列用于传输json数据
     @Bean
     public Queue queue(){
         ActiveMQQueue queue=new ActiveMQQueue("messageQueue");
         return queue;
+    }
+
+    //这个队列用于远程方法调用
+    @Bean
+    public Queue queue2(){
+        ActiveMQQueue queue2=new ActiveMQQueue("messageQueueForService");
+        return queue2;
     }
 
     //主题
@@ -75,12 +98,12 @@ public class MessageServiceConfig {
         return converter;
     }
 
+    //有多个相同类型的bean时（这里有多个queue），自动注入会根据名字去查找合适的bean
     @Bean
     public JmsTemplate jmsTemplate(ConnectionFactory connectionFactory,Queue queue,MessageConverter messageConverter){
         JmsTemplate jmsTemplate=new JmsTemplate(connectionFactory);
         //设置默认的消息目的地是队列
         jmsTemplate.setDefaultDestination(queue);
-        //jms默认的messageConverter是SimpleMessageConverter
         jmsTemplate.setMessageConverter(messageConverter);
         return jmsTemplate;
     }
@@ -97,12 +120,24 @@ public class MessageServiceConfig {
         return factory;
     }
 
+    //将RmiService导出为远程服务，可以被其它系统向调用本地方法一样调用
+    //如何监听对RmiService的调用，参考applicationContext-MQ.xml中的配置
     @Bean(name = "jmsISE")
-    @JmsListener(containerFactory = "jmsQueueListenerCF",destination = "messageQueue")
     public JmsInvokerServiceExporter exporter(){
         JmsInvokerServiceExporter exporter=new JmsInvokerServiceExporter();
         exporter.setService(rmiService);
         exporter.setServiceInterface(RmiService.class);
         return exporter;
+    }
+
+    //使用远程方法代理，纵然本地没有实现RmiService接口，依旧可以自动注入并调用
+    //这里我只是做个示例，因为我们已经实现了RmiService接口
+    @Bean
+    public JmsInvokerProxyFactoryBean jmsInvokerProxyFactoryBean(ConnectionFactory connectionFactory){
+        JmsInvokerProxyFactoryBean proxyFactoryBean=new JmsInvokerProxyFactoryBean();
+        proxyFactoryBean.setConnectionFactory(connectionFactory);
+        proxyFactoryBean.setQueueName("messageQueueForService");
+        proxyFactoryBean.setServiceInterface(RmiService.class);
+        return proxyFactoryBean;
     }
 }

@@ -232,10 +232,8 @@ Accept代表发送端希望接受的数据类型，如：Accept: text/xml 代表
 Content-Type代表发送端发送的实体数据的数据类型，如：Content-Type: text/html 代表发送端
 发送的数据格式是html。<br>
 
-四、
-
 ##XML可视化代码详解（不止XML，也可以支持json）<br>
-###相关的类<br>
+###相关的类<br>（赋值可以使用SPEL表达式，参考AidSystemUtils的generateSendFlowNo方法）
 unmatched-common模块下的com.unmatched.common.messageTransform包下全部<br>
 
 测试相关的类：unmatched-system-api模块下的com.unmatched.converter全部<br>
@@ -272,5 +270,5 @@ List或者Map中，然后再丢到XMLUtils中，让他来替我们生成XML报�
 ###不足
 1、未经足够的测试（我XML接触的比较少，基本都是json）<br>
 2、写Converter类可能稍微复杂了点，且编写方式与以前不太相同了<br>
-2、很慢，后续需要优化（主要慢在循环递归那块）<br>
+3、很慢，后续需要优化（主要慢在循环递归那块）<br>
 

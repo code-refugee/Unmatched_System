@@ -29,6 +29,7 @@ public class CoreAcctRecordConverterImpl implements CoreAcctRecordConverter {
         XMLMessageNodeInfo nodeInfo02 = messageOperation.getXmlNodeInfoById("02");
         //password
         XMLMessageNodeInfo nodeInfo03 = messageOperation.getXmlNodeInfoById("03");
+        //如果得到的是null就new一个类而不是null，这样代码就不用判空了
         if(nodeInfo02!=null)
             nodeInfo02.setValue(user.getUsername());
         if(nodeInfo03!=null)

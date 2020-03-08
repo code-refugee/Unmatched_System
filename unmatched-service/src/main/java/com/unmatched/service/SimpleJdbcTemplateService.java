@@ -10,9 +10,11 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
+
 @Service
 //@Lazy
-public class SimpleJdbcTemplateService {
+public class SimpleJdbcTemplateService{
 
     /**
      * JdbcOperations 是一个接口，定义了JdbcTemplate所实现的操作，

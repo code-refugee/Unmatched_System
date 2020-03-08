@@ -227,6 +227,13 @@
             <artifactId>activemq-all</artifactId>
             <version>5.15.11</version>
         </dependency>
+        <!--以下是对rabbitMQ操作需要的依赖 用于异步消息传输-->
+        <dependency>
+            <groupId>com.rabbitmq</groupId>
+            <artifactId>amqp-client</artifactId>
+            <version>5.8.0</version>
+        </dependency>
+        <!-- 分割线 -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>

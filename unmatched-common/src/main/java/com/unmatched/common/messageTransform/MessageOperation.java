@@ -18,7 +18,7 @@ public class MessageOperation {
     @Autowired
     private MessageNodeMapper messageNodeMapper;
 
-    //缓存
+    //缓存(这样初始化是不对的，不能起到缓存的作用，考虑放到getAllXMLNodeInfo方法中去)
     private Map<String, XMLMessageNodeInfo> cache = new HashMap<>();
 
     private Gson gson = new Gson();
@@ -36,7 +36,7 @@ public class MessageOperation {
     }
 
     /**
-    * Description: 根据类型得到所有的节点信息 （节点信息不会经常变动，可以考虑加入缓存）
+    * Description: 根据类型得到所有的节点信息 （节点信息不会经常变动，可以考虑使用@Cacheable加入缓存）
      * @param type ： 如 记账、支付、抹账
      * @return : 返回的对象 其实是一个抽象的xml模板
     * @date: 2020/2/29
