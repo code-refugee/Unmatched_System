@@ -28,6 +28,9 @@ public class XMLMessageNodeInfo implements MessageNodeInfo{
     //节点值
     private String value;
 
+    //值来源(SPEL表达式)
+    private String valueFrom;
+
     //子节点
     private List<XMLMessageNodeInfo> childs;
 

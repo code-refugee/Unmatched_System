@@ -19,8 +19,8 @@ public class JmsServiceImpl implements JmsService {
     public void sendUserToClient() {
         Gson gson=new Gson();
         User user=new User();
-        user.setUsername("张三");
-        user.setPassword("123456");
+        user.setUserName("张三");
+        user.setPassWord("123456");
         user.setId(1);
         jmsOperations.convertAndSend(gson.toJson(user));
     }

@@ -258,6 +258,7 @@ List或者Map中，然后再丢到XMLUtils中，让他来替我们生成XML报�
 
 ###约定<br>
 约定我们存入数据库的根节点一定是类似于 /<?xml version="1.0" encoding="UTF-8"?/> 这种的XML申明<br>
+通过SPEL表达式对节点的赋值要放到所有运算之后<br>
 
 ###使用这个XML可视化工具的优点<br>
 1、拼报文时不需要XMLUtils （XMLUtils如何拼报文往往与项目点的要求耦合，不能个个项目点通用）<br>

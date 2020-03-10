@@ -7,7 +7,12 @@ import com.unmatched.common.messageTransform.enums.OperationType;
 import com.unmatched.common.messageTransform.exception.MessageConverterException;
 import com.unmatched.common.messageTransform.inter.MessageConverter;
 import com.unmatched.common.messageTransform.mapper.MessageNodeMapper;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -20,6 +25,8 @@ public class MessageOperation {
 
     //缓存(这样初始化是不对的，不能起到缓存的作用，考虑放到getAllXMLNodeInfo方法中去)
     private Map<String, XMLMessageNodeInfo> cache = new HashMap<>();
+
+    private ExpressionParser parser=new SpelExpressionParser();
 
     private Gson gson = new Gson();
 
@@ -47,7 +54,7 @@ public class MessageOperation {
     }
 
     public XMLMessageNodeInfo getXmlNodeInfoById(String id) {
-        return cache.get(id);
+        return cache.get(id)==null?new XMLMessageNodeInfo():cache.get(id);
     }
 
     //BeanUtils.copyProperties是浅拷贝，这里我们需要深拷贝
@@ -117,6 +124,30 @@ public class MessageOperation {
                 //递归，添加该节点的子节点
                 addChildMessageNodes(temp, nodeInfos);
             }
+        }
+    }
+
+    //为模板赋值
+    public void putValueToTemplate(EvaluationContext context){
+        for (Map.Entry<String, XMLMessageNodeInfo> entry : cache.entrySet()) {
+            if (!StringUtils.isBlank(entry.getValue().getValueFrom())){
+                entry.getValue().setValue(parser.parseExpression(entry.getValue().
+                        getValueFrom()).getValue(context,String.class));
+            }
+        }
+    }
+
+    //为某个节点及其子节点赋值
+    public void putValueToNode(EvaluationContext context,XMLMessageNodeInfo nodeInfo){
+        if (nodeInfo==null)
+            return;
+        if (!StringUtils.isBlank(nodeInfo.getValueFrom())){
+            nodeInfo.setValue(parser.parseExpression(nodeInfo.getValueFrom()).getValue(context,String.class));
+        }
+        if(CollectionUtils.isEmpty(nodeInfo.getChilds()))
+            return;
+        for (XMLMessageNodeInfo child : nodeInfo.getChilds()) {
+            putValueToNode(context,child);
         }
     }
 

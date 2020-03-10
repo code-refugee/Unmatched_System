@@ -22,12 +22,12 @@ public class User implements Serializable {
     @NotNull(message = "用户名不得为空！")
     @NotBlank(message = "用户名不得为空！")
     @NotEmpty(message = "用户名不得为空！")
-    private String username;
+    private String userName;
 
 //    @DecimalMin(value = "18",message = "警告，未满18周岁!")
 //    @Pattern(regexp = "^(?![A-Za-z0-9]+$)(?![a-z0-9\\\\W]+$)(?![A-Za-z\\\\W]+$)" +
 //            "(?![A-Z0-9\\\\W]+$)[a-zA-Z0-9\\\\W]{8,}$",
 //    message = "密码必须包含字母、数字、大小写和特殊符号！")
-    private String password;
+    private String passWord;
 
 }
