@@ -43,7 +43,7 @@ public class SimpleXmlMessageConverterIml implements MessageConverter {
         String temp = "";
 
         for (int i = 0; i < index; i++) {
-            //增加缩进
+            //增加缩进(findBugs建议此处用StringBuilder)
             temp += "\t";
         }
 

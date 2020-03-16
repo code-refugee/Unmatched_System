@@ -7,10 +7,13 @@
         <result column="NODE_VALUE" jdbcType="VARCHAR" property="value"/>
         <result column="PARENT_ID" jdbcType="VARCHAR" property="parentId"/>
         <result column="VALUE_FROM" jdbcType="VARCHAR" property="valueFrom"/>
+        <result column="IF_NEED_LOOP" jdbcType="VARCHAR" property="ifNeedLoop"/>
+        <result column="LOOP_CONDITIONS" jdbcType="VARCHAR" property="conditions"/>
     </resultMap>
 
     <select id="findXMLNodeByUseFor" resultMap="BaseResultMap" parameterType="string">
         SELECT * FROM TTRD_AIDSYS_MESSAGE_TRANSFORM TAMT
         WHERE TAMT.BE_USED_FOR=#{useFor}
     </select>
+
 </mapper>

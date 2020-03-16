@@ -1,6 +1,6 @@
 package com.unmatched.converter;
 
-import com.unmatched.common.messageTransform.MessageOperation;
+import com.unmatched.common.messageTransform.MessageOperationOld;
 import com.unmatched.common.messageTransform.entity.XMLMessageNodeInfo;
 import com.unmatched.common.messageTransform.enums.OperationType;
 import com.unmatched.common.messageTransform.inter.MessageConverter;
@@ -19,7 +19,7 @@ import java.util.List;
 public class CoreAcctRecordConverterImplNew implements CoreAcctRecordConverter {
 
     @Autowired
-    private MessageOperation messageOperation;
+    private MessageOperationOld messageOperationOld;
 
     @Autowired
     private MessageConverter messageConverter;
@@ -27,7 +27,7 @@ public class CoreAcctRecordConverterImplNew implements CoreAcctRecordConverter {
     @Override
     public String encode(User user, List<Step> steps) {
         //获取与记账有关的节点
-        XMLMessageNodeInfo rootNodeInfo = messageOperation.getAllXMLNodeInfo(OperationType.CORE_ACCT_RECORD);
+        XMLMessageNodeInfo rootNodeInfo = messageOperationOld.getAllXMLNodeInfo(OperationType.CORE_ACCT_RECORD);
         EvaluationContext context = new StandardEvaluationContext();
         context.setVariable("user", user);
         context.setVariable("steps", steps);
@@ -35,7 +35,7 @@ public class CoreAcctRecordConverterImplNew implements CoreAcctRecordConverter {
         //临时节点，用于保存原来节点的状态
         XMLMessageNodeInfo temp1 = new XMLMessageNodeInfo();
         //浅拷贝
-        BeanUtils.copyProperties(messageOperation.getXmlNodeInfoById("05"), temp1);
+        BeanUtils.copyProperties(messageOperationOld.getXmlNodeInfoById("05"), temp1);
         List<XMLMessageNodeInfo> tempList = new ArrayList<>();
         for (int i = 1; i < steps.size(); i++) {
             EvaluationContext tempContext = new StandardEvaluationContext();
@@ -43,21 +43,21 @@ public class CoreAcctRecordConverterImplNew implements CoreAcctRecordConverter {
             tempContext.setVariable("steps", steps);
             XMLMessageNodeInfo temp2;
             //浅拷贝
-            BeanUtils.copyProperties(messageOperation.getXmlNodeInfoById("05"), temp1);
-            messageOperation.putValueToNode(tempContext, temp1);
+            BeanUtils.copyProperties(messageOperationOld.getXmlNodeInfoById("05"), temp1);
+            messageOperationOld.putValueToNode(tempContext, temp1);
             //深拷贝
-            temp2 = messageOperation.copyProperties(temp1);
+            temp2 = messageOperationOld.copy(temp1);
             tempList.add(temp2);
         }
-        XMLMessageNodeInfo needAddChildsNode = messageOperation.getXmlNodeInfoById(messageOperation.getXmlNodeInfoById("05").getParentId());
+        XMLMessageNodeInfo needAddChildsNode = messageOperationOld.getXmlNodeInfoById(messageOperationOld.getXmlNodeInfoById("05").getParentId());
         if (null != needAddChildsNode) {
             if (needAddChildsNode.getChilds() != null) {
                 needAddChildsNode.getChilds().addAll(tempList);
             }
         }
         context.setVariable("i", 0);
-        messageOperation.putValueToTemplate(context);
-        return messageOperation.getMessage(rootNodeInfo, messageConverter);
+        messageOperationOld.putValueToTemplate(context);
+        return messageOperationOld.getMessage(rootNodeInfo, messageConverter);
     }
 
 }

@@ -39,6 +39,7 @@ import javax.sql.DataSource;
 @PropertySource("classpath:/properties/system.properties")
 @ImportResource("classpath:/xmls/applicationContext.xml")
 @EnableJms
+@EnableAspectJAutoProxy
 //@Import(UserConfig.class)
 public class WebRootConfig {
 

@@ -8,5 +8,7 @@ import java.util.List;
 
 @Repository
 public interface MessageNodeMapper {
+
     List<XMLMessageNodeInfo> findXMLNodeByUseFor(@Param("useFor") String useFor);
+
 }

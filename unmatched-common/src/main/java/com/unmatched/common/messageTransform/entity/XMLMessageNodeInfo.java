@@ -31,6 +31,12 @@ public class XMLMessageNodeInfo implements MessageNodeInfo{
     //值来源(SPEL表达式)
     private String valueFrom;
 
+    //是否需要循环
+    private String ifNeedLoop;
+
+    //循环条件
+    private String conditions;
+
     //子节点
     private List<XMLMessageNodeInfo> childs;
 

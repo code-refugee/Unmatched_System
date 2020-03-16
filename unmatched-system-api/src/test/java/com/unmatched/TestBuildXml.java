@@ -1,14 +1,19 @@
 package com.unmatched;
 
+import com.unmatched.common.messageTransform.enums.OperationType;
+import com.unmatched.common.messageTransform.face.MessageOperation;
 import com.unmatched.converter.CoreAcctRecordConverter;
 import com.unmatched.pojo.Loop;
 import com.unmatched.pojo.Step;
 import com.unmatched.pojo.User;
 import com.unmatched.sysconfig.baseconfig.WebRootConfig;
+import com.unmatched.sysconfig.baseconfig.WebServletConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -36,6 +41,9 @@ public class TestBuildXml {
 
     @Autowired
     private CoreAcctRecordConverter coreAcctRecordConverterImplNew;
+
+    @Autowired
+    private MessageOperation messageOperation;
 
     @Before
     public void before(){
@@ -68,7 +76,13 @@ public class TestBuildXml {
 
     @Test
     public void testBuildXmlNew(){
-        System.out.println(coreAcctRecordConverterImplNew.encode(user,steps));
+        EvaluationContext context=new StandardEvaluationContext();
+        context.setVariable("i",0);
+        context.setVariable("steps",steps);
+        context.setVariable("user",user);
+        context.setVariable("loops",loops);
+        context.setVariable("j",0);
+        System.out.println(messageOperation.getMessage(OperationType.CORE_ACCT_RECORD,context));
     }
 
 

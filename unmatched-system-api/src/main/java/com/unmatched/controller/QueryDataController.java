@@ -1,6 +1,5 @@
 package com.unmatched.controller;
 
-import com.unmatched.pojo.User;
 import com.unmatched.service.SimpleJdbcTemplateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
