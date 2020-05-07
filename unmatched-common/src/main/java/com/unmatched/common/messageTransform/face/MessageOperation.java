@@ -10,6 +10,7 @@ import com.unmatched.common.messageTransform.mapper.MessageNodeMapper;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 @Component
+@Scope("prototype")
 public class MessageOperation {
 
     @Autowired
@@ -104,7 +106,6 @@ public class MessageOperation {
         return root;
     }
 
-    //添加子节点(这一步比较耗时，得优化)
     private void addChildMessageNodes(XMLMessageNodeInfo nodeInfo, List<XMLMessageNodeInfo> nodeInfos) {
         Iterator<XMLMessageNodeInfo> iterator = nodeInfos.iterator();
         while (iterator.hasNext()) {
@@ -237,6 +238,16 @@ public class MessageOperation {
         for (XMLMessageNodeInfo child : nodeInfo.getChilds()) {
             putValueToNode(context, child);
         }
+    }
+
+
+    //判断一个节点是否为该Id节点的子孙节点
+    private boolean ifChildren(String id,XMLMessageNodeInfo nodeInfo){
+        if (null==nodeInfo||null==nodeInfo.getParentId()||"".equals(nodeInfo.getParentId()))
+            return false;
+        if (nodeInfo.getParentId().equals(id))
+            return true;
+        return ifChildren(id,cache.get(nodeInfo.getParentId()));
     }
 
 }

@@ -75,13 +75,24 @@ public class TestBuildXml {
 
 
     @Test
-    public void testBuildXmlNew(){
+    public void testBuildExp1(){
         EvaluationContext context=new StandardEvaluationContext();
         context.setVariable("i",0);
         context.setVariable("steps",steps);
         context.setVariable("user",user);
-        context.setVariable("loops",loops);
+        context.setVariable("total",0);
+        System.out.println(messageOperation.getMessage(OperationType.CORE_ACCT_RECORD,context));
+    }
+
+    @Test
+    public void testBuildExp2(){
+        EvaluationContext context=new StandardEvaluationContext();
+        context.setVariable("i",0);
         context.setVariable("j",0);
+        context.setVariable("k",0);
+        context.setVariable("steps",steps);
+        context.setVariable("user",user);
+        context.setVariable("loops",loops);
         System.out.println(messageOperation.getMessage(OperationType.CORE_ACCT_RECORD,context));
     }
 
