@@ -160,7 +160,7 @@
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>6.0.16.Final</version>
+            <version>6.0.20.Final</version>
         </dependency>
         <!--以上是使用注解实现校验需要的jar-->
         <!--操作数据库依赖-->
